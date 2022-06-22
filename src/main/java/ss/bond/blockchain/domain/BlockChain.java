@@ -1,12 +1,15 @@
 package ss.bond.blockchain.domain;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.MapperFeature;
+import com.fasterxml.jackson.databind.ObjectMapper;
+
 import java.math.BigInteger;
 import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
-import java.util.Base64;
 import java.util.Map;
 import java.util.ArrayList;
 import java.util.TreeMap;
@@ -32,11 +35,12 @@ public class BlockChain {
         String timestamp = LocalDateTime.now().format(DateTimeFormatter.ISO_DATE_TIME);
 
         TreeMap<String, String> block = new java.util.TreeMap<>();
-        block.put("index", index);
-        block.put("timestamp", timestamp);
-        block.put("previousHash", previousHash);
+        block.put(BlockFields.INDEX.name(), index);
+        block.put(BlockFields.TIMESTAMP.name(), timestamp);
+        block.put(BlockFields.PREVIOUS_HASH.name(), previousHash);
+        block.put(BlockFields.PENDING_TRANSACTIONS.name(), pendingTransactions.toString());//TODO сереализовать / десериализовать правильно
 
-        block.put("hash", BlockChain.hash(block));
+        block.put(BlockFields.HASH.name(), BlockChain.hash(block));
 
         chain.add(block);
 
@@ -64,9 +68,10 @@ public class BlockChain {
 
     /**
      * Получает последний блок в цепочке.
-     * @return
+     *
+     * @return last block
      */
-    public Object getLastBlock() {
+    public Map<String, String> getLastBlock() {
         if (chain.size() < 1) {
             return null;
         }
@@ -97,22 +102,21 @@ public class BlockChain {
      * (если перемешаются ключи то будет другой Хэш, что будет ошибкой,
      * так как при повторных вычисениях блока нужно получить один и тот же Хэш)
      *
-     * @param block словарь (Map) отсортированный по ключам
+     * @param block сериализуемый блок
      * @return json с отсортированными ключами
      */
-    private static String getUnifiedBlock(SortedMap<String, String> block) {
-        StringBuilder stringBuilder = new StringBuilder();
+    private static String getUnifiedBlock(Map<String, String> block) {
+        ObjectMapper jsonMapper = new ObjectMapper();
+        jsonMapper.setConfig(jsonMapper.getSerializationConfig().with(MapperFeature.SORT_PROPERTIES_ALPHABETICALLY));
 
-        stringBuilder.append("{");
-        for (Map.Entry<String, String> entry : block.entrySet()) {
-            stringBuilder.append(entry.getKey());
-            stringBuilder.append(":");
-            stringBuilder.append(entry.getValue());
-            stringBuilder.append(",");
+        String json = null;
+        try {
+            json = jsonMapper.writeValueAsString(block);
+        } catch (JsonProcessingException e) {
+            e.printStackTrace();
         }
-        stringBuilder.append("}");
 
-        return stringBuilder.toString();
+        return json;
     }
 
     /**
