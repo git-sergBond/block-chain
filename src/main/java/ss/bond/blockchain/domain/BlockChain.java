@@ -13,6 +13,7 @@ import java.time.format.DateTimeFormatter;
 import java.util.Map;
 import java.util.HashMap;
 import java.util.ArrayList;
+import java.util.UUID;
 
 
 public class BlockChain {
@@ -39,8 +40,11 @@ public class BlockChain {
         block.put(BlockFields.TIMESTAMP.name(), timestamp);
         block.put(BlockFields.PREVIOUS_HASH.name(), previousHash);
         block.put(BlockFields.PENDING_TRANSACTIONS.name(), pendingTransactions.toString());//TODO сереализовать / десериализовать правильно
+        block.put(BlockFields.NONCE.name(), UUID.randomUUID().toString()); // TODO тут должно быть уникальное 64 бит число
 
         block.put(BlockFields.HASH.name(), BlockChain.hash(block));
+
+        pendingTransactions = new ArrayList<>(); // TODO Сброс списка незавершенных транзаций ??? Зачем оно ???
 
         chain.add(block);
 

@@ -14,7 +14,7 @@ public class BlockChainApplication {
 		BlockChain blockGen = new BlockChain();
 		blockGen.newBlock(blockGen.getLastBlock().get(BlockFields.HASH.name()));
 
-		ProfOfWork.PoW();
+		ProfOfWork.profOfWork();
 	}
 
 }
