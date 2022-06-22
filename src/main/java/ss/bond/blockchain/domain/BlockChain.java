@@ -14,6 +14,14 @@ import java.util.Map;
 import java.util.HashMap;
 import java.util.ArrayList;
 import java.util.UUID;
+import java.util.Objects;
+
+import static ss.bond.blockchain.domain.BlockFields.INDEX;
+import static ss.bond.blockchain.domain.BlockFields.TIMESTAMP;
+import static ss.bond.blockchain.domain.BlockFields.PREVIOUS_HASH;
+import static ss.bond.blockchain.domain.BlockFields.PENDING_TRANSACTIONS;
+import static ss.bond.blockchain.domain.BlockFields.HASH;
+import static ss.bond.blockchain.domain.BlockFields.NONCE;
 
 
 public class BlockChain {
@@ -26,29 +34,42 @@ public class BlockChain {
     }
 
     /**
-     * Генерирует новый блок и добавляет его в цепь.
+     * Генерирует новый блок.
      *
-     * @param previousHash предыдущий Хэш, Nullable
      * @return новый блок
      */
-    public Map<String, String> newBlock(String previousHash) {
+    public Map<String, String> newBlock() {
         String index = String.valueOf(chain.size());
         String timestamp = LocalDateTime.now().format(DateTimeFormatter.ISO_DATE_TIME);
+        Map<String, String> lastBlock = getLastBlock();
+        String previousHash = Objects.nonNull(lastBlock) ? lastBlock.get(HASH.name()) : null;
 
         Map<String, String> block = new HashMap<>();
-        block.put(BlockFields.INDEX.name(), index);
-        block.put(BlockFields.TIMESTAMP.name(), timestamp);
-        block.put(BlockFields.PREVIOUS_HASH.name(), previousHash);
-        block.put(BlockFields.PENDING_TRANSACTIONS.name(), pendingTransactions.toString());//TODO сереализовать / десериализовать правильно
-        block.put(BlockFields.NONCE.name(), UUID.randomUUID().toString()); // TODO тут должно быть уникальное 64 бит число
+        block.put(INDEX.name(), index);
+        block.put(TIMESTAMP.name(), timestamp);
+        block.put(PREVIOUS_HASH.name(), previousHash);
+        block.put(PENDING_TRANSACTIONS.name(), pendingTransactions.toString());//TODO сереализовать / десериализовать правильно
+        block.put(NONCE.name(), UUID.randomUUID().toString()); // TODO тут должно быть уникальное 64 бит число
 
-        block.put(BlockFields.HASH.name(), BlockChain.hash(block));
+        block.put(HASH.name(), BlockChain.hash(block));
 
         pendingTransactions = new ArrayList<>(); // TODO Сброс списка незавершенных транзаций ??? Зачем оно ???
 
-        chain.add(block);
-
         return block;
+    }
+
+    /**
+     * PoW algorithm.
+     * Основная идея доказательства работы: сложно сделать, но легко проверить.
+     */
+    public void proofOfWork() {
+        Map<String, String> newBlock = null;
+
+        do {
+            newBlock = newBlock();
+        } while (!isValidBlock(newBlock));
+
+        chain.add(newBlock);
     }
 
     /**
@@ -100,7 +121,7 @@ public class BlockChain {
      * Блок генезиса - жестко закодированный блок, с индексом 0 и не имеющий предшественников.
      */
     private void createGenesisBlock() {
-        newBlock(null);
+        chain.add(newBlock());//TODO нормально в блоке генезиса не проверяется валиднсть? Даже видно, что первый блок не валиден
     }
 
     /**
@@ -123,5 +144,20 @@ public class BlockChain {
         }
 
         return json;
+    }
+
+    /**
+     * Найдите число р, при хешировании которого с помощью решения предыдущего блока получается хэш с четырьмя ведущими нулями.
+     *
+     * TODO как понять не обманул ли человек и не отправил блок вычесленный где-то еще?
+     */
+    private static boolean isValidBlock(Map<String, String> block) {
+        String hashHexStr = block.get(BlockFields.HASH.name());
+        if (Objects.isNull(hashHexStr)) {
+            System.out.println("HASH field not found in block");
+            return false;
+        }
+
+        return hashHexStr.startsWith("0000");
     }
 }
