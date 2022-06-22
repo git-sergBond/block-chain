@@ -1,9 +1,11 @@
 package ss.bond.blockchain.domain;
 
+import java.math.BigInteger;
 import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.Base64;
 import java.util.Map;
 import java.util.ArrayList;
@@ -26,11 +28,13 @@ public class BlockChain {
      * @return новый блок
      */
     public Map<String, String> newBlock(String previousHash) {
-        TreeMap<String, String> block = new java.util.TreeMap<>(Map.of(
-                "index", String.valueOf(chain.size()),
-                "timestamp", LocalDateTime.now().toString(), //TODO посмотреть чтобы была timeZone и формат даты ISO
-                "previousHash", previousHash
-        ));
+        String index = String.valueOf(chain.size());
+        String timestamp = LocalDateTime.now().format(DateTimeFormatter.ISO_DATE_TIME);
+
+        TreeMap<String, String> block = new java.util.TreeMap<>();
+        block.put("index", index);
+        block.put("timestamp", timestamp);
+        block.put("previousHash", previousHash);
 
         block.put("hash", BlockChain.hash(block));
 
@@ -55,8 +59,7 @@ public class BlockChain {
         } catch (NoSuchAlgorithmException e) {
             e.printStackTrace();
         }
-        String hashBase64 = Base64.getEncoder().encodeToString(hash);//TODO проверить нужно ли тут явно указвывать StandardCharsets.UTF_8 . PS хотя и так понятно, что BASE64 использует какаую-то универсальную кодировку
-        return hashBase64;
+        return byteArrayToHexString(hash);
     }
 
     /**
@@ -110,5 +113,16 @@ public class BlockChain {
         stringBuilder.append("}");
 
         return stringBuilder.toString();
+    }
+
+    /**
+     * Converter byte[] to Hex String.
+     *
+     * @param bytes array of bytes
+     * @return String in Hex view
+     */
+    private static String byteArrayToHexString(byte[] bytes) { //TODO разобрать как это работает
+        BigInteger bi = new BigInteger(1, bytes);
+        return String.format("%0" + (bytes.length << 1) + "X", bi);
     }
 }
