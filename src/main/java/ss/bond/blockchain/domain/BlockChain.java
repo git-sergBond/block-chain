@@ -3,17 +3,17 @@ package ss.bond.blockchain.domain;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.MapperFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import org.apache.tomcat.util.buf.HexUtils;
 
-import java.math.BigInteger;
 import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.Map;
+import java.util.HashMap;
 import java.util.ArrayList;
-import java.util.TreeMap;
-import java.util.SortedMap;
+
 
 public class BlockChain {
 
@@ -34,7 +34,7 @@ public class BlockChain {
         String index = String.valueOf(chain.size());
         String timestamp = LocalDateTime.now().format(DateTimeFormatter.ISO_DATE_TIME);
 
-        TreeMap<String, String> block = new java.util.TreeMap<>();
+        Map<String, String> block = new HashMap<>();
         block.put(BlockFields.INDEX.name(), index);
         block.put(BlockFields.TIMESTAMP.name(), timestamp);
         block.put(BlockFields.PREVIOUS_HASH.name(), previousHash);
@@ -53,8 +53,9 @@ public class BlockChain {
      * @param block Блок от которого нужно получить Хэш
      * @return Хэш в формате SHA256 закодированный в BASE64
      */
-    public static String hash(SortedMap<String, String> block) {
+    public static String hash(Map<String, String> block) {
         String unifiedBlock = getUnifiedBlock(block);
+
         byte[] rawBlock = unifiedBlock.getBytes(StandardCharsets.UTF_8);
         byte[] hash = null;
         try {
@@ -63,7 +64,8 @@ public class BlockChain {
         } catch (NoSuchAlgorithmException e) {
             e.printStackTrace();
         }
-        return byteArrayToHexString(hash);
+
+        return HexUtils.toHexString(hash);
     }
 
     /**
@@ -117,17 +119,5 @@ public class BlockChain {
         }
 
         return json;
-    }
-
-    /**
-     * Converter byte[] to Hex String.
-     * https://stackoverflow.com/questions/332079/in-java-how-do-i-convert-a-byte-array-to-a-string-of-hex-digits-while-keeping-l
-     * 
-     * @param bytes array of bytes
-     * @return String in Hex view
-     */
-    private static String byteArrayToHexString(byte[] bytes) { //TODO разобрать как это работает
-        BigInteger bi = new BigInteger(1, bytes);
-        return String.format("%0" + (bytes.length << 1) + "X", bi);
     }
 }
