@@ -117,7 +117,8 @@ public class BlockChain {
 
     /**
      * Converter byte[] to Hex String.
-     *
+     * https://stackoverflow.com/questions/332079/in-java-how-do-i-convert-a-byte-array-to-a-string-of-hex-digits-while-keeping-l
+     * 
      * @param bytes array of bytes
      * @return String in Hex view
      */
