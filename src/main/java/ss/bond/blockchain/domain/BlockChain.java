@@ -4,6 +4,7 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.MapperFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.apache.tomcat.util.buf.HexUtils;
+import ss.bond.blockchain.enums.BlockFields;
 
 import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
@@ -16,12 +17,12 @@ import java.util.ArrayList;
 import java.util.UUID;
 import java.util.Objects;
 
-import static ss.bond.blockchain.domain.BlockFields.INDEX;
-import static ss.bond.blockchain.domain.BlockFields.TIMESTAMP;
-import static ss.bond.blockchain.domain.BlockFields.PREVIOUS_HASH;
-import static ss.bond.blockchain.domain.BlockFields.PENDING_TRANSACTIONS;
-import static ss.bond.blockchain.domain.BlockFields.HASH;
-import static ss.bond.blockchain.domain.BlockFields.NONCE;
+import static ss.bond.blockchain.enums.BlockFields.INDEX;
+import static ss.bond.blockchain.enums.BlockFields.TIMESTAMP;
+import static ss.bond.blockchain.enums.BlockFields.PREVIOUS_HASH;
+import static ss.bond.blockchain.enums.BlockFields.PENDING_TRANSACTIONS;
+import static ss.bond.blockchain.enums.BlockFields.HASH;
+import static ss.bond.blockchain.enums.BlockFields.NONCE;
 
 
 public class BlockChain {

@@ -1,4 +1,4 @@
-package ss.bond.blockchain.domain;
+package ss.bond.blockchain.enums;
 
 public enum BlockFields {
     INDEX,

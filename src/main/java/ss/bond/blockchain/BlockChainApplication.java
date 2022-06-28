@@ -9,10 +9,10 @@ public class BlockChainApplication {
 
 	public static void main(String[] args) {
 		SpringApplication.run(BlockChainApplication.class, args);
-		BlockChain blockChain = new BlockChain();
+/*		BlockChain blockChain = new BlockChain();
 		blockChain.newBlock();
 		blockChain.proofOfWork();
-		blockChain.proofOfWork();
+		blockChain.proofOfWork();        */
 	}
 
 }
