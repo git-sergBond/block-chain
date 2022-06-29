@@ -15,13 +15,18 @@ function setConnected(connected) {
 function connect() {
     var socket = new SockJS('/gs-guide-websocket');
     stompClient = Stomp.over(socket);
-    stompClient.connect({}, function (frame) {
-        setConnected(true);
-        console.log('Connected: ' + frame);
-        stompClient.subscribe('/topic/greetings', function (greeting) {
-            showGreeting(JSON.parse(greeting.body).message);
-        });
-    });
+    stompClient.connect(
+        {
+            'user_name' : $("#name").val() //TODO hide connect button before user not fill user_name, Add new text input with user name
+        },
+        function (frame) {
+            setConnected(true);
+            console.log('Connected: ' + frame);
+            stompClient.subscribe('/topic/greetings', function (greeting) {
+                showGreeting(JSON.parse(greeting.body).message);
+            });
+        }
+        );
 }
 
 function disconnect() {
