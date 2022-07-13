@@ -24,4 +24,8 @@ public class ChatParticipantsRepository {
     public Collection<String> getConnectedUserNames() {
         return users.values();
     }
+
+    public int getCountUsers() {
+        return users.size();
+    }
 }
