@@ -31,6 +31,10 @@ public class ChatEventListener {
     /**
      * GIT https://github.com/amrkhaledccd/One-to-One-WebSockets-Chat
      *
+     * TODO
+     * Попробовать с хедерами
+     * Попробовать отсыку через постман, а не приконнекте
+     *
      * Хабр
      * https://habr.com/ru/post/187822/
      * https://habr.com/ru/company/otus/blog/516702/
