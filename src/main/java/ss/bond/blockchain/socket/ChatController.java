@@ -20,7 +20,8 @@ public class ChatController {
     Logger log = LoggerFactory.getLogger(ChatController.class.getName());
 
     @MessageMapping("/hello")
-    @SendToUser("/queue/reply")
+    //@SendToUser("/queue/reply")
+    @SendTo("/topic/greetings")
     public MessageDto greeting(MessageDto dto, @Header("simpSessionId") String sessionId) {
         log.debug("greeting(): sessionId={}", sessionId);
         return new MessageDto("Hello, " + dto.getMessage());
