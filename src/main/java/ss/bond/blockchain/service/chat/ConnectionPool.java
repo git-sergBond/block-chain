@@ -25,49 +25,34 @@ public class ConnectionPool {
     public void sendWelcomeMessage(String sessionId, String nickName, int countUsers, SimpMessageHeaderAccessor headers) {
         String message = "Welcome " + nickName + ". There are " + (countUsers - 1) + " beside you.";
 
+        log.debug("sendWelcomeMessage() - sessionId={} {}", sessionId, headers.getMessageHeaders());
+
         try {
             Thread.sleep(300L);
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
 
-        log.debug("sendWelcomeMessage() - {} {}", sessionId, headers.getMessageHeaders());
-
-
-        SimpMessageHeaderAccessor headerAccessor = SimpMessageHeaderAccessor
-                .create(SimpMessageType.MESSAGE);
-        headerAccessor.setSessionId(sessionId);
-        headerAccessor.setLeaveMutable(true);
-        brokerMessagingTemplate.convertAndSendToUser(
-                sessionId,
-                "/topic/greetings",
-                new MessageDto(message),
-                headerAccessor.getMessageHeaders()//headers.getMessageHeaders()
-        );
-        brokerMessagingTemplate.convertAndSendToUser(
-                sessionId,
-                "/user/messages",
-                new MessageDto(message),
-                headerAccessor.getMessageHeaders()//headers.getMessageHeaders()
-        );
-        brokerMessagingTemplate.convertAndSendToUser(
-                sessionId,
-                "/messages",
-                new MessageDto(message),
-                headerAccessor.getMessageHeaders()//headers.getMessageHeaders()
-        );
-        brokerMessagingTemplate.convertAndSendToUser(
-                sessionId,
-                "/greetings",
-                new MessageDto(message),
-                headerAccessor.getMessageHeaders()//headers.getMessageHeaders()
-        );
-/*
         brokerMessagingTemplate.convertAndSend(
                 "/topic/greetings",
                 new MessageDto(message)
         );
-*/
+
+        brokerMessagingTemplate.convertAndSendToUser(
+                sessionId,
+                "/queue/reply",
+                new MessageDto(message)
+        );
+
+        brokerMessagingTemplate.convertAndSendToUser(
+                sessionId,
+                "queue/reply",
+                new MessageDto(message)
+        );
+
+
+
+
         log.debug("sendWelcomeMessage() - {}", message);
     }
 

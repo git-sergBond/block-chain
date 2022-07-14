@@ -22,14 +22,44 @@ function connect() {
         function (frame) {
             setConnected(true);
             console.log('Connected: ' + frame);
+
+
+            let sessionId = getSessionId();
+
             stompClient.subscribe('/topic/greetings', function (greeting) {
                 showGreeting(JSON.parse(greeting.body).message);
             });
-            stompClient.subscribe('/user/messages', function(msg){
-                alert(msg.body);
+            stompClient.subscribe('/user/queue/reply', function(msg) {
+                console.log('******* /user/queue/reply ' + msg)
+                showGreeting(JSON.parse(greeting.body).message);
             });
+            stompClient.subscribe('/user/' + sessionId + '/queue/reply', function(msg) {
+                console.log('******* /user/' + sessionId + '/queue/reply' + msg)
+                showGreeting(JSON.parse(greeting.body).message);
+            });
+            stompClient.subscribe('user/queue/reply', function(msg) {
+                console.log('******* /user/queue/reply ' + msg)
+                showGreeting(JSON.parse(greeting.body).message);
+            });
+            stompClient.subscribe('user/' + sessionId + '/queue/reply', function(msg) {
+                console.log('******* /user/' + sessionId + '/queue/reply' + msg)
+                showGreeting(JSON.parse(greeting.body).message);
+            });
+            //user/uxtjc0jh/queue/reply
         }
         );
+}
+
+function getSessionId() {
+    let url = stompClient.ws._transport.url;
+    console.log('URL: ' + url);
+
+    url = url.replace("ws://localhost:8080/gs-guide-websocket/", "");
+    url = url.replace("/websocket", "");
+    url = url.replace(/^[0-9]+\//, "");
+    console.log("SESSION_ID: " + url);
+
+    return url;
 }
 
 function disconnect() {

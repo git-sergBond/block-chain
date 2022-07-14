@@ -29,7 +29,12 @@ public class ChatEventListener {
     private ConnectionPool connectionPool;
 
     /**
-     * https://www.baeldung.com/spring-websockets-send-message-to-user (#1)
+     * WS Send msg To User https://www.baeldung.com/spring-websockets-send-message-to-user
+     * StackOverflow https://stackoverflow.com/questions/22367223/sending-message-to-specific-user-on-spring-websocket
+     *
+     * WS auth https://www.baeldung.com/spring-security-websockets
+     * WS simple example https://www.baeldung.com/websockets-spring
+     *
      * https://stackoverflow.com/questions/34929578/spring-websocket-sendtosession-send-message-to-specific-session (#2 subscribe)
      * https://github.com/spring-projects/spring-framework/issues/15933
      * https://stackoverflow.com/questions/62456213/spring-websocket-convertandsendtouser-not-working-but-convertandsend-working
