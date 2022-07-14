@@ -29,6 +29,8 @@ public class ChatEventListener {
     private ConnectionPool connectionPool;
 
     /**
+     * GIT https://github.com/amrkhaledccd/One-to-One-WebSockets-Chat
+     *
      * Хабр
      * https://habr.com/ru/post/187822/
      * https://habr.com/ru/company/otus/blog/516702/
