@@ -25,7 +25,13 @@ function connect() {
 
 
             let sessionId = getSessionId();
+            stompClient.subscribe("/user/queue/errors", function(message) {
+                alert("Error " + message.body);
+            });
 
+            stompClient.subscribe("/user/queue/reply", function(message) {
+                showGreeting(message.body);
+            });
             stompClient.subscribe('/topic/greetings', function (greeting) {
                 showGreeting(JSON.parse(greeting.body).message);
             });
@@ -46,6 +52,8 @@ function connect() {
                 showGreeting(JSON.parse(greeting.body).message);
             });
             //user/uxtjc0jh/queue/reply
+        }, function(error) {
+            alert("STOMP error " + error);
         }
         );
 }
