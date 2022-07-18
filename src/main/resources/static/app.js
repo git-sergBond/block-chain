@@ -23,36 +23,18 @@ function connect() {
             setConnected(true);
             console.log('Connected: ' + frame);
 
+            stompClient.subscribe('/topic/broadcast', function (greeting) {
+                showGreeting(JSON.parse(greeting.body).message);
+            });
 
             let sessionId = getSessionId();
-            stompClient.subscribe("/user/queue/errors", function(message) {
-                alert("Error " + message.body);
-            });
-
-            stompClient.subscribe("/user/queue/reply", function(message) {
-                showGreeting(message.body);
-            });
-            stompClient.subscribe('/topic/greetings', function (greeting) {
+            let privatePath = "/user/" + sessionId + "/queue/messages";
+            stompClient.subscribe(privatePath, function(msg) {
+                console.log(">>>" + privatePath + msg)
                 showGreeting(JSON.parse(greeting.body).message);
             });
-            stompClient.subscribe('/user/queue/reply', function(msg) {
-                console.log('******* /user/queue/reply ' + msg)
-                showGreeting(JSON.parse(greeting.body).message);
-            });
-            stompClient.subscribe('/user/' + sessionId + '/queue/reply', function(msg) {
-                console.log('******* /user/' + sessionId + '/queue/reply' + msg)
-                showGreeting(JSON.parse(greeting.body).message);
-            });
-            stompClient.subscribe('user/queue/reply', function(msg) {
-                console.log('******* /user/queue/reply ' + msg)
-                showGreeting(JSON.parse(greeting.body).message);
-            });
-            stompClient.subscribe('user/' + sessionId + '/queue/reply', function(msg) {
-                console.log('******* /user/' + sessionId + '/queue/reply' + msg)
-                showGreeting(JSON.parse(greeting.body).message);
-            });
-            //user/uxtjc0jh/queue/reply
-        }, function(error) {
+        },
+        function(error) {
             alert("STOMP error " + error);
         }
         );

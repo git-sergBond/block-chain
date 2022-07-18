@@ -33,25 +33,11 @@ public class ConnectionPool {
             e.printStackTrace();
         }
 
-        brokerMessagingTemplate.convertAndSend(
-                "/topic/greetings",
-                new MessageDto(message)
-        );
-
         brokerMessagingTemplate.convertAndSendToUser(
                 sessionId,
-                "/queue/reply",
+                "/queue/messages",
                 new MessageDto(message)
         );
-
-        brokerMessagingTemplate.convertAndSendToUser(
-                sessionId,
-                "queue/reply",
-                new MessageDto(message)
-        );
-
-
-
 
         log.debug("sendWelcomeMessage() - {}", message);
     }
