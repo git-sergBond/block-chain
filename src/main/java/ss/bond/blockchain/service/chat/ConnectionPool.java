@@ -4,16 +4,17 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.messaging.simp.SimpMessageHeaderAccessor;
-import org.springframework.messaging.simp.SimpMessageType;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
-import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import ss.bond.blockchain.dto.MessageDto;
 
 @Service
 public class ConnectionPool {
 
-    Logger log = LoggerFactory.getLogger(ConnectionPool.class.getName());
+    private String USER_DESTINATION = "/queue/messages";
+    private String BROADCAST_DESTINATION = "/topic/broadcast";
+
+    private Logger log = LoggerFactory.getLogger(ConnectionPool.class.getName());
 
     @Autowired
     private SimpMessagingTemplate brokerMessagingTemplate;
@@ -21,11 +22,8 @@ public class ConnectionPool {
     /**
      * Sends a welcome message to a newly connected client.
      */
-    @Async
-    public void sendWelcomeMessage(String sessionId, String nickName, int countUsers, SimpMessageHeaderAccessor headers) {
-        String message = "Welcome " + nickName + ". There are " + (countUsers - 1) + " beside you.";
-
-        log.debug("sendWelcomeMessage() - sessionId={} {}", sessionId, headers.getMessageHeaders());
+    public void sendWelcomeMessage(String sessionId, String userName, int countUsers) {
+        String message = "Welcome " + userName + ". There are " + (countUsers - 1) + " beside you.";
 
         try {
             Thread.sleep(300L);
@@ -33,40 +31,43 @@ public class ConnectionPool {
             e.printStackTrace();
         }
 
-        brokerMessagingTemplate.convertAndSendToUser(
-                sessionId,
-                "/queue/messages",
-                new MessageDto(message)
-        );
-
-        log.debug("sendWelcomeMessage() - {}", message);
+        sendToUser(sessionId, message);
     }
 
-    public void broadcast(String  message) {
-        //Broadcasts a general message to the en tire pool
+    /**
+     * Calls the broadcast method with a "user joining" message.
+     */
+    public void broadcastUserJoin(String userName) {
+        broadcast("User " + userName + " is joining!");
     }
 
-    public void broadcastUserJoin() {
-        //Calls the broadcast method with a "user join ing" message
+    /**
+     * Calls the broadcast method with a "user quitting" message.
+     */
+    public void broadcastUserQuit(String userName) {
+        broadcast("User " + userName + " is joining!");
     }
 
-    public void broadcastUserQuit() {
-        //Calls the broadcast method with a "user quitting" message
+    /**
+     * Calls the broadcast method with a user’ s chat message.
+     */
+    public void broadcastNewMessage(String userName, String message) {
+        broadcast("[" + userName + "] > " + message);
     }
 
-    public void broadcastNewMessage() {
-        //Calls the broadcast method with a user’ s chat message
+    /**
+     * Broadcasts a general message to the en tire pool.
+     */
+    private void broadcast(String  message) {
+        brokerMessagingTemplate.convertAndSend(BROADCAST_DESTINATION, new MessageDto(message));
+        log.debug(">>> " + message);
     }
 
-    public void listUsers() {
-        //Lists all the users in the pool
-    }
-
-    public void addNewUserToPool() {
-        //Adds a new user to our existing pool
-    }
-
-    public void removeUserFromPool() {
-        //Removes an existing user from our pool
+    /**
+     * Sends a message to concrete user.
+     */
+    private void sendToUser(String sessionId, String message) {
+        brokerMessagingTemplate.convertAndSendToUser(sessionId, USER_DESTINATION, new MessageDto(message));
+        log.debug(">>> " + message);
     }
 }

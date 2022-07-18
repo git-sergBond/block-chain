@@ -25,6 +25,10 @@ public class ChatParticipantsRepository {
         return users.values();
     }
 
+    public String getUserNameBySessionId(String sessionId) {
+        return users.get(sessionId);
+    }
+
     public int getCountUsers() {
         return users.size();
     }

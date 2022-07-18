@@ -14,9 +14,6 @@ import ss.bond.blockchain.service.chat.ConnectionPool;
 import java.util.ArrayList;
 import java.util.Map;
 
-/**
- * https://github.com/salmar/spring-websocket-chat/blob/master/src/main/java/com/sergialmar/wschat/event/PresenceEventListener.java
- */
 @Service
 public class ChatEventListener {
 
@@ -28,29 +25,6 @@ public class ChatEventListener {
     @Autowired
     private ConnectionPool connectionPool;
 
-    /**
-     * GIT https://github.com/amrkhaledccd/One-to-One-WebSockets-Chat
-     *
-     * TODO
-     * Попробовать с хедерами
-     * Попробовать отсыку через постман, а не приконнекте
-     * Поддебажить клиентсю либу - кажется она не рабоатет
-     *
-     * Хабр
-     * https://habr.com/ru/post/187822/
-     * https://habr.com/ru/company/otus/blog/516702/
-     *
-     * WS Send msg To User https://www.baeldung.com/spring-websockets-send-message-to-user
-     * StackOverflow https://stackoverflow.com/questions/22367223/sending-message-to-specific-user-on-spring-websocket
-     *
-     * WS auth https://www.baeldung.com/spring-security-websockets
-     * WS simple example https://www.baeldung.com/websockets-spring
-     *
-     * https://stackoverflow.com/questions/34929578/spring-websocket-sendtosession-send-message-to-specific-session (#2 subscribe)
-     * https://github.com/spring-projects/spring-framework/issues/15933
-     * https://stackoverflow.com/questions/62456213/spring-websocket-convertandsendtouser-not-working-but-convertandsend-working
-     * @param event
-     */
     @EventListener
     public void handleSessionConnectEvent(SessionConnectEvent event) {
         SimpMessageHeaderAccessor headers = SimpMessageHeaderAccessor.wrap(event.getMessage());
@@ -58,11 +32,13 @@ public class ChatEventListener {
         String sessionId = headers.getSessionId();
 
         repository.connectUser(sessionId, userName);
-        log.debug("*** CONNECTED *** {}", repository.getConnectedUserNames());
 
         int countUsers = repository.getCountUsers();
 
-        connectionPool.sendWelcomeMessage(sessionId, userName, countUsers, headers);
+        connectionPool.sendWelcomeMessage(sessionId, userName, countUsers);
+        //connectionPool.broadcastUserJoin(userName);
+
+        log.debug("*** CONNECTED *** {}", repository.getConnectedUserNames());
     }
 
     @EventListener
@@ -70,12 +46,15 @@ public class ChatEventListener {
         SimpMessageHeaderAccessor headers = SimpMessageHeaderAccessor.wrap(event.getMessage());
         repository.disconnectUser(headers.getSessionId());
 
-        System.out.println("*** DISCONNECTED ***");
         System.out.println(repository.getConnectedUserNames());
+
+        String userName = getUserName(headers);
+        connectionPool.broadcastUserQuit(userName);
+
+        log.debug("*** DISCONNECTED *** {}", userName);
     }
 
     private String getUserName(SimpMessageHeaderAccessor headers) {
         return (String) ((ArrayList) (((Map) headers.getHeader("nativeHeaders")).get("user_name"))).get(0);
     }
-
 }
