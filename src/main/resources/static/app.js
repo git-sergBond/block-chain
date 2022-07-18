@@ -1,4 +1,6 @@
-var stompClient = null;
+let stompClient = null;
+
+let endpoint = '/gs-guide-websocket';
 
 function setConnected(connected) {
     $("#connect").prop("disabled", connected);
@@ -13,38 +15,45 @@ function setConnected(connected) {
 }
 
 function connect() {
-    var socket = new SockJS('/gs-guide-websocket');
+    let socket = new SockJS(endpoint);
     stompClient = Stomp.over(socket);
-    stompClient.connect(
-        {
-            'user_name' : $("#name").val() //TODO hide connect button before user not fill user_name, Add new text input with user name
-        },
-        function (frame) {
-            setConnected(true);
-            console.log('Connected: ' + frame);
+    //TODO hide connect button before user not fill user_name, Add new text input with user name
+    stompClient.connect({ 'user_name' : getUserName() }, onConnectSuccess, onConnectError);
+}
 
-            stompClient.subscribe('/topic/broadcast', function (greeting) {
-                showGreeting(JSON.parse(greeting.body).message);
-            });
+function getUserName() {
+    return $("#name").val();
+}
 
-            let sessionId = getSessionId();
-            let privatePath = "/user/" + sessionId + "/queue/messages";
-            stompClient.subscribe(privatePath, function(msg) {
-                console.log(">>>" + privatePath + msg)
-                showGreeting(JSON.parse(greeting.body).message);
-            });
-        },
-        function(error) {
-            alert("STOMP error " + error);
-        }
-        );
+function onConnectSuccess(frame) {
+    setConnected(true);
+    console.log('Connected: ' + frame);
+
+    const broadcastPath = '/topic/broadcast';
+    stompClient.subscribe('/topic/broadcast', broadcastMessageHandler);
+
+    const sessionId = getSessionId();
+    const privatePath = "/user/" + sessionId + "/queue/messages";
+    stompClient.subscribe(privatePath, privateMessageHandler);
+}
+
+function onConnectError(error) {
+    alert("STOMP error " + error);
+}
+
+function privateMessageHandler(msg) {
+    showGreeting(JSON.parse(msg.body).message);
+}
+
+function broadcastMessageHandler(msg) {
+    showGreeting(JSON.parse(msg.body).message);
 }
 
 function getSessionId() {
     let url = stompClient.ws._transport.url;
     console.log('URL: ' + url);
 
-    url = url.replace("ws://localhost:8080/gs-guide-websocket/", "");
+    url = url.replace("ws://localhost:8080" + endpoint + "/", "");
     url = url.replace("/websocket", "");
     url = url.replace(/^[0-9]+\//, "");
     console.log("SESSION_ID: " + url);
