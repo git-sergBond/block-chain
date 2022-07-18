@@ -23,13 +23,6 @@ public class ConnectionPool {
      */
     public void sendWelcomeMessage(String sessionId, String userName, int countUsers) {
         String message = "Welcome " + userName + ". There are " + (countUsers - 1) + " beside you.";
-
-        try {
-            Thread.sleep(300L);
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        }
-
         sendToUser(sessionId, message);
     }
 
