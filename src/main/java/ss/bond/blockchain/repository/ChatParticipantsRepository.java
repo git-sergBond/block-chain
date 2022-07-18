@@ -30,4 +30,6 @@ public class ChatParticipantsRepository {
     public int getCountUsers() {
         return users.size();
     }
+
+    //TODO сделать аунтенцификацию + API выдающую список пользаков, за исключением самого пользака (по SessionID или Principal)
 }
