@@ -26,10 +26,12 @@ public class ChatController {
     private ConnectionPool connectionPool;
 
     @MessageMapping("/send")
-    public void greeting(MessageDto dto, @Header("simpSessionId") String sessionId) {
-        log.debug("greeting(): sessionId={}", sessionId);
+    public void sendHandler(MessageDto dto, @Header("simpSessionId") String sessionId) {
+        log.debug("sendHandler() - start: sessionId={}", sessionId);
+
         String userName = repository.getUserNameBySessionId(sessionId);
-        log.debug("greeting(): sessionId={} userName={}", userName, sessionId);
         connectionPool.broadcastNewMessage(userName, dto.getMessage());
+
+        log.debug("sendHandler() - end: sessionId={} userName={}", sessionId, userName);
     }
 }
