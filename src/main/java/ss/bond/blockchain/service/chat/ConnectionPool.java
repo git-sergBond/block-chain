@@ -61,6 +61,7 @@ public class ConnectionPool {
         log.debug("broadcast() - start: message={}", message);
         brokerMessagingTemplate.convertAndSend(BROADCAST_DESTINATION, new MessageDto(message));
         log.debug("broadcast() - end: message={}", message);
+        //TODO Нам не нужно также транслировать на пользователя, отправляющго сообщение (попробовать исключить по SessionId из броадкаста если возможно)
     }
 
     /**
