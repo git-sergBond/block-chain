@@ -35,6 +35,7 @@ function onConnectSuccess(frame) {
 
     const sessionId = getSessionId();
     const privatePath = "/user/" + sessionId + "/queue/messages";
+    console.log("privatePath=" + privatePath)
     stompClient.subscribe(privatePath, privateMessageHandler);
 }
 

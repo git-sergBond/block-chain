@@ -36,7 +36,7 @@ public class ChatEventListener {
         int countUsers = repository.getCountUsers();
 
         connectionPool.sendWelcomeMessage(sessionId, userName, countUsers);
-        //connectionPool.broadcastUserJoin(userName);
+        connectionPool.broadcastUserJoin(userName);
 
         log.debug("*** CONNECTED *** {}", repository.getConnectedUserNames());
     }
@@ -44,13 +44,11 @@ public class ChatEventListener {
     @EventListener
     public void handleSessionConnectEvent(SessionDisconnectEvent event) {
         SimpMessageHeaderAccessor headers = SimpMessageHeaderAccessor.wrap(event.getMessage());
-        repository.disconnectUser(headers.getSessionId());
+        String sessionId = headers.getSessionId();
+        String userName = repository.getUserNameBySessionId(sessionId);
 
-        System.out.println(repository.getConnectedUserNames());
-
-        String userName = getUserName(headers);
+        repository.disconnectUser(sessionId);
         connectionPool.broadcastUserQuit(userName);
-
         log.debug("*** DISCONNECTED *** {}", userName);
     }
 

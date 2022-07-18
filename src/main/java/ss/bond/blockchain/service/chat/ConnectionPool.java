@@ -3,7 +3,6 @@ package ss.bond.blockchain.service.chat;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.messaging.simp.SimpMessageHeaderAccessor;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Service;
 import ss.bond.blockchain.dto.MessageDto;
@@ -45,7 +44,7 @@ public class ConnectionPool {
      * Calls the broadcast method with a "user quitting" message.
      */
     public void broadcastUserQuit(String userName) {
-        broadcast("User " + userName + " is joining!");
+        broadcast("User " + userName + " is quitting!");
     }
 
     /**
@@ -59,15 +58,17 @@ public class ConnectionPool {
      * Broadcasts a general message to the en tire pool.
      */
     private void broadcast(String  message) {
+        log.debug("broadcast() - start: message={}", message);
         brokerMessagingTemplate.convertAndSend(BROADCAST_DESTINATION, new MessageDto(message));
-        log.debug(">>> " + message);
+        log.debug("broadcast() - end: message={}", message);
     }
 
     /**
      * Sends a message to concrete user.
      */
     private void sendToUser(String sessionId, String message) {
+        log.debug("sendToUser() - start: sessionId={} message={}", sessionId, message);
         brokerMessagingTemplate.convertAndSendToUser(sessionId, USER_DESTINATION, new MessageDto(message));
-        log.debug(">>> " + message);
+        log.debug("sendToUser() - end: sessionId={} message={}", sessionId, message);
     }
 }
