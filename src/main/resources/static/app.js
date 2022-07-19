@@ -5,6 +5,7 @@ const sendPath = "/app/send";
 
 function setConnected(connected) {
     $("#connect").prop("disabled", connected);
+    $("#sendMessage").prop("disabled", !connected);
     $("#disconnect").prop("disabled", !connected);
     if (connected) {
         $("#conversation").show();
@@ -12,14 +13,19 @@ function setConnected(connected) {
     else {
         $("#conversation").hide();
     }
-    $("#greetings").html("");
+    $("#messages").html("");
 }
 
 function connect() {
+    let userName = getUserName();
+    if (typeof (userName) !== "string" || userName.length <= 0) {
+        alert("You need to field user name!")
+        return;
+    }
+
     let socket = new SockJS(endpoint);
     stompClient = Stomp.over(socket);
-    //TODO hide connect button before user not fill user_name, Add new text input with user name
-    stompClient.connect({ 'user_name' : getUserName() }, onConnectSuccess, onConnectError);
+    stompClient.connect({ 'user_name' : userName }, onConnectSuccess, onConnectError);
 }
 
 function getUserName() {
@@ -71,19 +77,20 @@ function disconnect() {
     console.log("Disconnected");
 }
 
-function sendName() {
-    stompClient.send(sendPath, {}, JSON.stringify({'message': $("#name").val()}));
+function sendMessage() {
+    stompClient.send(sendPath, {}, JSON.stringify({'message': $("#message").val()}));
 }
 
 function showGreeting(message) {
-    $("#greetings").append("<tr><td>" + message + "</td></tr>");
+    $("#messages").append("<tr><td>" + message + "</td></tr>");
 }
 
 $(function () {
+    $("#conversation").hide();
     $("form").on('submit', function (e) {
         e.preventDefault();
     });
     $( "#connect" ).click(function() { connect(); });
     $( "#disconnect" ).click(function() { disconnect(); });
-    $( "#send" ).click(function() { sendName(); });
+    $( "#sendMessage" ).click(function() { sendMessage(); });
 });
