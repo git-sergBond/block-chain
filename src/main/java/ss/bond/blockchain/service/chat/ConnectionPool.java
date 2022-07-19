@@ -4,6 +4,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import ss.bond.blockchain.dto.MessageDto;
 
@@ -21,7 +22,15 @@ public class ConnectionPool {
     /**
      * Sends a welcome message to a newly connected client.
      */
+    @Async
     public void sendWelcomeMessage(String sessionId, String userName, int countUsers) {
+
+        try {
+            Thread.sleep(300L);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+
         String message = "Welcome " + userName + ". There are " + (countUsers - 1) + " beside you.";
         sendToUser(sessionId, message);
     }
