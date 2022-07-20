@@ -2,6 +2,9 @@ let stompClient = null;
 
 const endpoint = '/gs-guide-websocket';
 const sendPath = "/app/send";
+const broadcastPath = "/topic/broadcast";
+const errorPath = "/user/{sessionId}/queue/errors";
+const messagesPath = "/user/{sessionId}/queue/messages";
 
 function setConnected(connected) {
     $("#connect").prop("disabled", connected);
@@ -36,13 +39,16 @@ function onConnectSuccess(frame) {
     setConnected(true);
     console.log('Connected: ' + frame);
 
-    const broadcastPath = "/topic/broadcast";
     stompClient.subscribe(broadcastPath, broadcastMessageHandler);
+    stompClient.subscribe(createSessionPath(messagesPath), privateMessageHandler);
+    stompClient.subscribe(createSessionPath(errorPath), errorMessageHandler);
+}
 
+function createSessionPath(path) {
     const sessionId = getSessionId();
-    const privatePath = "/user/" + sessionId + "/queue/messages";
-    console.log("privatePath=" + privatePath)
-    stompClient.subscribe(privatePath, privateMessageHandler);
+    const sessionPath = path.replace("{sessionId}", sessionId);
+    console.log("sessionPath=" + sessionPath)
+    return sessionPath;
 }
 
 function onConnectError(error) {
@@ -55,6 +61,10 @@ function privateMessageHandler(msg) {
 
 function broadcastMessageHandler(msg) {
     showGreeting(JSON.parse(msg.body).message);
+}
+
+function errorMessageHandler(msg) {
+    showGreeting(msg.body);
 }
 
 function getSessionId() {
